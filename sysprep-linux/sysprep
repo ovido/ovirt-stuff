@@ -1,0 +1,33 @@
+#!/bin/bash
+
+. /etc/init.d/functions
+
+if [ $# -ne 0 ]; then
+    echo $"Usage: sysprep" >&2
+    exit 1
+fi
+
+rm -f /root/anaconda-ks.log
+rm -f /root/anaconda-ks.cfg
+rm -f /root/install.log
+rm -f /root/install.log.syslog
+for LOG in `ls /var/log/*.log`; do
+  cp /dev/null ${LOG}
+done
+rm -f /var/log/*.log-*
+cp /dev/null /var/log/audit/audit.log && rm -f /var/log/audit/audit.log.*
+cp /dev/null /var/log/cron && rm -f /var/log/cron-*
+cp /dev/null /var/log/lastlog
+cp /dev/null /var/log/maillog && rm -f /var/log/maillog-*
+cp /dev/null /var/log/messages && rm -f /var/log/messages-*
+cp /dev/null /var/log/secure && rm -f /var/log/secure-*
+rm -f /etc/udev/rules.d/*-persistent-*.rules
+rm -f /etc/ssh/ssh_host*
+find /root -name .bash_history -exec rm {} \;
+find /home -name .bash_history -exec rm {} \;
+history -c
+sed -i '/HWADDR/d' /etc/sysconfig/network-scripts/ifcfg-eth*
+
+chkconfig unattended on
+
+halt

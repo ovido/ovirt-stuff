@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# unattended	Change system settings to make system uniq
+#
+# chkconfig: 2345 01 25
+# description: Change system settings to make system uniq.
+#
+
+### BEGIN INIT INFO
+# Provides: unattended
+# Required-Start: $local_fs
+# Required-Stop: $local_fs
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Change system settings
+# Description:       Change system settings to make system uniq.
+### END INIT INFO
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+# pull in sysconfig settings
+[ -f /etc/sysconfig/unattended ] && . /etc/sysconfig/unattended
+
+RETVAL=0
+prog="unattended"
+FILE="unattended.txt"
+
+
+start()
+{
+    [ -e /dev/sr1 ] || exit 5
+
+        echo -n $"Changing system settings: "
+        mount -o ro /dev/sr1 /media
+        HOSTNAME=`grep "hostname:" /media/unattended.txt | cut -d: -f2 | tr -d ' '` || exit 1
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ] && [ ${HOSTNAME} != "" ]; then
+          if `grep HOSTNAME /etc/sysconfig/network >/dev/null 2>&1`; then
+            sed -i -e "s!HOSTNAME=.*!HOSTNAME=${HOSTNAME}!" /etc/sysconfig/network
+          else
+            echo "HOSTNAME=${HOSTNAME}" >> /etc/sysconfig/network
+          fi
+          if `grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0 >/dev/null 2>&1`; then
+            sed -i -e "s!DHCP_HOSTNAME=.*!DHCP_HOSTNAME=${HOSTNAME}!" /etc/sysconfig/network-scripts/ifcfg-eth0
+          else
+            echo "DHCP_HOSTNAME=${HOSTNAME}" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+          fi
+          hostname ${HOSTNAME}
+          umount /media
+          chkconfig ${prog} off
+        fi
+
+        return $RETVAL
+}
+
+
+case "$1" in
+	start)
+		start
+		;;
+	*)
+		echo $"Usage: $0 {start}"
+		RETVAL=2
+esac
+exit $RETVAL

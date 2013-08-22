@@ -1,0 +1,17 @@
+Scripts for Linux (RHEL/CentOS) sysprep
+=======================================
+
+These scripts are intended for mass deployment of Red Hat Enterprise
+Linux and CentOS virtual machines on oVirt or RHEV environments.
+
+Usage:
+0. Install script ../hooks/50_payload on all oVirt/RHEV nodes in
+/usr/libexec/vdsm/hooks/before_vm_start
+1. Create master vm
+2. Copy unattended script to /etc/init.d of this vm
+3. Make it executable
+4. Copy sysprep to /usr/local/bin
+5. Make sysprep executable
+6. Run sysprep which will poweroff the master vm
+7. Create vm template
+8. Create vm pool and autostart all vms

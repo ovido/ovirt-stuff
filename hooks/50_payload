@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# configuration
+OVIRT_URL="https://engine/api"
+OVIRT_USERNAME="admin@internal"
+OVIRT_PASSWORD="password"
+
+# the main script starts here
+
+VM_NAME=`sed -n 's|<name>\(.*\)</name>|\1|p' $_hook_domxml | tr -s ' ' ' ' | cut -d' ' -f2`
+VM_ID=`sed -n 's|<uuid>\(.*\)</uuid>|\1|p' $_hook_domxml | tr -s ' ' ' ' | cut -d' ' -f2`
+VM_NAME=`echo ${VM_NAME} | tr -d ' '`
+VM_ID=`echo ${VM_ID} | tr -d ' '`
+
+PAYLOAD="<vm><payloads><payload type=\"cdrom\"><file name=\"unattended.txt\"><content>hostname: ${VM_NAME}</content></file></payload></payloads></vm>"
+
+# set payload
+curl -X PUT -H "Accept: application/xml" -H "Content-Type: application/xml" -u $OVIRT_USERNAME:$OVIRT_PASSWORD -k $OVIRT_URL/vms/${VM_ID} -d "${PAYLOAD}" || exit 1
+
+exit 0
