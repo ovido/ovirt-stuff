@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+import os
+import sys
+import hooking
+
+
+if hooking.tobool(os.environ.get('fix_solaris')):
+	domxml = hooking.read_domxml()
+
+	# cpu fixes
+	cpu = domxml.getElementsByTagName('cpu')[0]
+	cpu.removeAttribute('match')
+	cpumodel = cpu.getElementsByTagName('model')[0]
+	cpumodel.parentNode.removeChild(cpumodel)
+	
+	hooking.write_domxml(domxml)
+
+sys.exit(0)

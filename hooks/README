@@ -1,0 +1,22 @@
+oVirt hook scripts
+==================
+
+99_fix_solaris
+==============
+
+Fix Solaris network support by removing CPU model from libvirt XML.
+
+
+Installation:
+-------------
+
+* Install hook script to /usr/libexec/vdsm/hooks/before_vm_start of all oVirt hosts.
+
+*  Append custom properties with engine-config:
+engine-config -s UserDefinedVMProperties=fix_solaris=^(true|false)$' --cver=3.2
+engine-service restart
+
+Usage:
+------
+
+In the VM configuration window, open the custom properites tab and add fix_solaris=true for removing of CPU model information.
