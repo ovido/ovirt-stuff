@@ -1,0 +1,55 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:		unattended
+# Required-Start:	$remote_fs
+# Required-Stop:	$remote_fs
+# Default-Start:	2 3 4 5
+# Default-Stop:		
+# Short-Description:	Change system settings to make system uniq
+### END INIT INFO
+
+set -e
+
+# /etc/init.d/unattended: Change system settings to make system uniq
+
+if test -f /etc/default/unattended; then
+    . /etc/default/unattended
+fi
+
+. /lib/lsb/init-functions
+
+prog="unattended"
+FILE="unattended.txt"
+
+
+start()
+{
+    [ -e /dev/sr1 ] || exit 5
+
+        echo -n $"Changing system settings: "
+        mount -o ro /dev/sr1 /media
+        HOSTNAME=`grep "hostname:" /media/unattended.txt | cut -d: -f2 | tr -d ' '` || exit 1
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ] && [ ${HOSTNAME} != "" ]; then
+          echo "${HOSTNAME}" > /etc/hostname
+          hostname ${HOSTNAME}
+          umount /media
+          update-rc.d ${prog} disable ${prog}
+        fi
+
+        return $RETVAL
+}
+
+
+case "$1" in
+  start)
+	start
+	;;
+  *)
+	log_action_msg "Usage: $0 {start}" || true
+	RETVAL=1
+esac
+
+exit ${RETVAL}
+

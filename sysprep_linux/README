@@ -8,7 +8,7 @@ Usage:
 0. Install script ../hooks/50_payload on all oVirt/RHEV nodes in
 /usr/libexec/vdsm/hooks/before_vm_start
 1. Create master vm
-2. Copy unattended script to /etc/init.d of this vm
+2. Copy unattended.<distribution> script to /etc/init.d/unattended of this vm
 3. Make it executable
 4. Copy sysprep to /usr/local/bin
 5. Make sysprep executable
